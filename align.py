@@ -105,6 +105,10 @@ def stringToRGB(base64_string):
     image = Image.open(io.BytesIO(imgdata))
     return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
 
+def byteToRGB(rawimg):
+    image = Image.open(io.BytesIO(rawimg))
+    return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
+
 def order_points(pts):
     # initialzie a list of coordinates that will be ordered
     # such that the first entry in the list is the top-left,

@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from align import stringToRGB, extractIdData
+from align import stringToRGB, extractIdData, byteToRGB
 
 app = Flask(__name__)
 
@@ -18,7 +18,8 @@ def hello_world():
 def api_all():
     content = request.json
     print(content)
-    image = stringToRGB(content["imageBase64"])
+    #image = stringToRGB(content["imageBase64"])
+    image = byteToRGB(request.data)
     person = extractIdData(image)
     return jsonify(person)
 
