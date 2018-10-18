@@ -1,4 +1,5 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from align import stringToRGB, extractIdData
 
 app = Flask(__name__)
 
@@ -15,6 +16,10 @@ def hello_world():
 # A route to return all of the available entries in our catalog.
 @app.route('/api/v1/resources/idcards/extract', methods=['GET','POST'])
 def api_all():
+    content = request.json
+    print(content)
+    image = stringToRGB(content["imageBase64"])
+    person = extractIdData(image)
     return jsonify(person)
 
 if __name__ == "__main__":

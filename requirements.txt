@@ -1,1 +1,9 @@
 flask
+scikit-image
+imutils
+numpy
+argparse
+opencv-python
+Pillow
+pybase64
+
