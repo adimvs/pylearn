@@ -6,4 +6,4 @@ argparse
 opencv-python
 Pillow
 pybase64
-
+pytesseract
