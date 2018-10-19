@@ -9,7 +9,87 @@ import pytesseract
 import re
 import base64
 import io
+import http.client, urllib.request, urllib.parse, urllib.error, base64
+from http.client import HTTPSConnection
+import os
+from flask import json
 
+def sendMSRequest(binaryImage):
+    api_key = os.environ.get("MS_API_KEY")
+    print(api_key)
+    headers = {
+    # Request headers
+    'Content-Type': 'application/octet-stream',
+    'Ocp-Apim-Subscription-Key': '%s' % api_key,
+    }
+    print(headers)
+    params = urllib.parse.urlencode({
+        # Request parameters
+        'mode': 'Printed',
+    })
+    
+    try:
+        conn = http.client.HTTPSConnection('westcentralus.api.cognitive.microsoft.com')
+        conn.request("POST", "/vision/v2.0/recognizeText?%s" % params, binaryImage, headers)
+        response = conn.getresponse()
+        data = response.read()
+        print(data)
+        print(response.headers)
+        conn.close()
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+    
+    return response.headers["Operation-Location"]
+
+def getMSResponse(op_location):
+    api_key = os.environ.get("MS_API_KEY")
+    headers = {
+    # Request headers
+    'Ocp-Apim-Subscription-Key': '%s' % api_key,
+    }
+
+    params = urllib.parse.urlencode({
+    })
+    print(op_location.rsplit('/', 1)[1])
+    try:
+        conn = http.client.HTTPSConnection('westcentralus.api.cognitive.microsoft.com')
+        conn.request("GET", "/vision/v2.0/textOperations/%s" % op_location.rsplit('/', 1)[1], "", headers)
+        response = conn.getresponse()
+        data = response.read().decode('utf-8')
+        json_obj = json.loads(data)
+        print(json_obj)
+        conn.close()
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+    return json_obj
+
+def iterateData(data):
+    person = {'first_name': '',
+     'last_name': '',
+     'series': '',
+     'number': '',
+     'cnp': ''}
+    
+    for (k, v) in data.items():
+        print("Key: " + k)
+        print("Value: " + str(v))
+        for line in v:
+            print(line['text'])
+            cnp_line = line['text'].find('CNP')
+            if cnp_line>=0:
+                print("--->")
+                cnp = line['words'][1]['text']
+                print(cnp)
+                person['cnp'] = cnp
+            name_line = line['text'].find('Nume')
+            if name_line>=0:
+                print("--->")
+                name = v[v.index(line)+2]['words'][0]['text']
+                #name = list(data)[tuple(data.keys()).index(k)+2]['words'][0]['text']
+                print(name)
+                person['first_name'] = name
+    return person
+        
 def extractIdData(image):
     person = {'first_name': 'Bill',
      'last_name': 'Gates',
