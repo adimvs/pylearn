@@ -15,7 +15,7 @@ def hello_world():
     return "Hello World!"
 
 # A route to return all of the available entries in our catalog.
-@app.route('/api/v1/resources/idcards/extract', methods=['GET','POST'])
+@app.route('/api/v1/resources/idcards/test', methods=['GET','POST'])
 def api_all():
     content = request.json
     print(content)
@@ -25,7 +25,7 @@ def api_all():
     return jsonify(person)
 
 # A route to return all of the available entries in our catalog.
-@app.route('/api/v1/resources/idcards/test', methods=['GET','POST'])
+@app.route('/api/v1/resources/idcards/extract', methods=['GET','POST'])
 def api_test():
     operation_location = sendMSRequest(request.data)
     time.sleep(6)
