@@ -87,7 +87,28 @@ def iterateData(data):
                 name = v[v.index(line)+2]['words'][0]['text']
                 #name = list(data)[tuple(data.keys()).index(k)+2]['words'][0]['text']
                 print(name)
-                person['first_name'] = name
+                person['last_name'] = name
+            fname_line = line['text'].find('Prenume')
+            if fname_line>=0:
+                print("--->")
+                fname = v[v.index(line)+1]['words'][0]['text']
+                #name = list(data)[tuple(data.keys()).index(k)+2]['words'][0]['text']
+                print(fname)
+                person['first_name'] = fname
+            seria_line = line['text'].find('SERIA')
+            if seria_line>=0:
+                print("--->")
+                seria_line = line['words'][1]['text']
+                #name = list(data)[tuple(data.keys()).index(k)+2]['words'][0]['text']
+                print(seria_line)
+                person['series'] = seria_line
+            number_line = line['text'].find('NR')
+            if number_line>=0:
+                print("--->")
+                number_line = line['words'][3]['text']
+                #name = list(data)[tuple(data.keys()).index(k)+2]['words'][0]['text']
+                print(number_line)
+                person['number'] = number_line
     return person
         
 def extractIdData(image):
