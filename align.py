@@ -12,7 +12,7 @@ import io
 import http.client, urllib.request, urllib.parse, urllib.error, base64
 from http.client import HTTPSConnection
 import os
-from flask import json
+from flask import json, jsonify
 
 def sendMSRequest(binaryImage):
     api_key = os.environ.get("MS_API_KEY")
@@ -31,6 +31,48 @@ def sendMSRequest(binaryImage):
     try:
         conn = http.client.HTTPSConnection('westcentralus.api.cognitive.microsoft.com')
         conn.request("POST", "/vision/v2.0/recognizeText?%s" % params, binaryImage, headers)
+        response = conn.getresponse()
+        data = response.read()
+        print(data)
+        print(response.headers)
+        conn.close()
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+    
+    return response.headers["Operation-Location"]
+
+def sendNotification(person):
+    api_key = os.environ.get("NOTIF_API_KEY")
+    print(api_key)
+    to_key = os.environ.get("TO_KEY")
+    print(to_key)
+    headers = {
+    # Request headers
+    'Content-Type': 'application/json',
+    'Authorization': '%s' % api_key,
+    }
+    print(headers)
+    request_body = {
+    # Request headers
+    'to': '%s' % to_key,
+    'collapse_key' : 'type_a',
+    'notification' : {
+    'body' : 'Nume:%s' % person["last_name"],
+    'title': 'ID Extraction Complete'
+    },
+    "data" : {
+     "body" : "Nume:%s" % person["last_name"],
+     "title": 'ID Extraction Complete',
+     "last_name" : "%s" % person["last_name"],
+     "first_name" : "%s" % person["first_name"],
+     "series" : "%s" % person["series"],
+     "number" : "%s" % person["number"]
+    }
+    }
+    
+    try:
+        conn = http.client.HTTPSConnection('fcm.googleapis.com')
+        conn.request("POST", "/fcm/send", json.dumps(request_body), headers)
         response = conn.getresponse()
         data = response.read()
         print(data)

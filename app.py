@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, json
 from align import stringToRGB, extractIdData, byteToRGB, sendMSRequest,\
-    getMSResponse, iterateData
+    getMSResponse, iterateData, sendNotification
 import time
 app = Flask(__name__)
 
@@ -31,6 +31,7 @@ def api_test():
     time.sleep(6)
     response = getMSResponse(operation_location)
     parsed_response = iterateData(response["recognitionResult"])
+    sendNotification(parsed_response)
     return jsonify(parsed_response)
 
 if __name__ == "__main__":
