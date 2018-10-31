@@ -17,6 +17,15 @@ import pymongo
 from bson.objectid import ObjectId
 from bson.json_util import dumps, loads
 
+import json
+from bson import ObjectId
+
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
+    
 def save_identity(person_identity,raw_image_data):
     #mongodb:27017
     username = os.environ.get("USER")

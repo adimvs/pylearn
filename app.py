@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, json
 from align import stringToRGB, extractIdData, byteToRGB, sendMSRequest,\
-    getMSResponse, iterateData, sendNotification
+    getMSResponse, iterateData, sendNotification, JSONEncoder
 import time
 import pymongo
 import os
@@ -60,7 +60,7 @@ def get_id_by_id(res_id):
     
     myid = mycol.find_one({'_id': ObjectId(res_id)})
 
-    json_string = dumps(myid)
+    json_string = JSONEncoder.encode(myid)
     print(json_string)
     #back_to_dict = loads(json_string)
     
