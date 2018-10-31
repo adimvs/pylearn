@@ -13,6 +13,26 @@ import http.client, urllib.request, urllib.parse, urllib.error, base64
 from http.client import HTTPSConnection
 import os
 from flask import json, jsonify
+import pymongo
+from bson.objectid import ObjectId
+from bson.json_util import dumps, loads
+
+def save_identity(person_identity,raw_image_data):
+    #mongodb:27017
+    username = os.environ.get("USER")
+    password = os.environ.get("PASS")
+    myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/peopledb" % (username,password))
+    mydb = myclient["peopledb"]
+
+    mycol = mydb["identities"]
+    
+    person_identity["document_image"] = base64.b64encode(raw_image_data)
+    
+    x = mycol.insert_one(person_identity)
+    
+    print(x.inserted_id)
+    
+    return x.inserted_id
 
 def sendMSRequest(binaryImage):
     api_key = os.environ.get("MS_API_KEY")
@@ -110,7 +130,12 @@ def iterateData(data):
      'last_name': '',
      'series': '',
      'number': '',
-     'cnp': ''}
+     'cnp': '',
+     'document_image':'',
+     'selfie_image': '',
+     'confirmed':'',
+     'id':''
+    }
     
     for (k, v) in data.items():
         print("Key: " + k)

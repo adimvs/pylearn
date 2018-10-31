@@ -61,9 +61,10 @@ def get_id_by_id(res_id):
     myid = mycol.find_one({'_id': ObjectId(res_id)})
 
     json_string = dumps(myid)
-    back_to_dict = loads(json_string)
+    print(json_string)
+    #back_to_dict = loads(json_string)
     
-    return jsonify(back_to_dict)
+    return json_string
 
 # A route save a new identity.
 @app.route('/api/v1/resources/identities', methods=['POST'])
