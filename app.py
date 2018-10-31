@@ -5,7 +5,7 @@ import time
 import pymongo
 import os
 from bson.objectid import ObjectId
-
+from bson.json_util import dumps, loads
 
 
 app = Flask(__name__)
@@ -60,8 +60,10 @@ def get_id_by_id(res_id):
     
     myid = mycol.find_one({'_id': ObjectId(res_id)})
 
+    json_string = dumps(myid)
+    back_to_dict = loads(json_string)
     
-    return jsonify(myid)
+    return jsonify(back_to_dict)
 
 # A route save a new identity.
 @app.route('/api/v1/resources/identities', methods=['POST'])
