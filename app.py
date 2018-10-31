@@ -54,7 +54,7 @@ def get_id_by_id():
     res_id = request.url.rsplit('/', 1)[1]
     username = os.environ.get("USER")
     password = os.environ.get("PASS")
-    myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/" % (username,password))
+    myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/peopledb" % (username,password))
     mydb = myclient["peopledb"]
 
     mycol = mydb["identities"]
@@ -70,7 +70,7 @@ def save_id():
     #mongodb:27017
     username = os.environ.get("USER")
     password = os.environ.get("PASS")
-    myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/" % (username,password))
+    myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/peopledb" % (username,password))
     mydb = myclient["peopledb"]
 
     mycol = mydb["identities"]
