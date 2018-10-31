@@ -49,9 +49,8 @@ def api_test():
     return jsonify(parsed_response)
 
 # A route to return all of the available identities in our catalog.
-@app.route('/api/v1/resources/identities', methods=['GET'])
-def get_id_by_id():
-    res_id = request.url.rsplit('/', 1)[1]
+@app.route('/api/v1/resources/identities/<res_id>', methods=['GET'])
+def get_id_by_id(res_id):
     username = os.environ.get("USER")
     password = os.environ.get("PASS")
     myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/peopledb" % (username,password))
