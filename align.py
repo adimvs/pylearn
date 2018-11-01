@@ -211,6 +211,7 @@ def getEmptyPerson():
      'state':'',
      'to_key':''
     }
+    return person
     
 def iterateData(data):
     person = {'first_name': '',
