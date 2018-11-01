@@ -21,8 +21,7 @@ import time
 import json
 from bson import ObjectId
 from app import person_identity
-,
-     'id':''
+
 def handleExtractionRequest(requestdata):
     try:
         operation_location = sendMSRequest(requestdata)
