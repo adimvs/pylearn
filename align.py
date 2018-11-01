@@ -84,7 +84,7 @@ def save_identity(person_identity,raw_image_data):
 
     mycol = mydb["identities"]
     
-    person_identity["document_image"] = base64.b64encode(raw_image_data)
+    person_identity["document_image"] = base64.b64encode(raw_image_data).decode()
     person_identity['confirmed'] = 'pending'
     x = mycol.insert_one(person_identity)
     
