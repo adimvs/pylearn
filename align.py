@@ -105,7 +105,6 @@ def save_identity(person_identity,raw_image_data, existing_id):
     person_identity['state'] = 'pending'
     x = mycol.replace_one({"_id": ObjectId(existing_id)}, person_identity)
     
-    person_identity['id'] = x.inserted_id
     return person_identity
 
 def sendMSRequest(binaryImage):
