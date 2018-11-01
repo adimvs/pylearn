@@ -43,8 +43,8 @@ def api_all():
 # A route to return all of the available entries in our catalog.
 @app.route('/api/v1/resources/idcards/extract', methods=['GET','POST'])
 def api_test():
-    existing_id = request.headers["EXISTING_ID"]
-    to_key = request.headers["TO_KEY"]
+    existing_id = request.headers.get("EXISTING_ID")
+    to_key = request.headers.get("TO_KEY")
     
     if existing_id is None:
         #we have new identity
