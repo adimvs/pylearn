@@ -85,7 +85,7 @@ def save_new_identity(person_identity):
     mycol = mydb["identities"]
     
     x = mycol.insert_one(person_identity)
-    
+    print(person_identity)
     print(x.inserted_id)
     return str(x.inserted_id)    
 def save_identity(person_identity,raw_image_data, existing_id):

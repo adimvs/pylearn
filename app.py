@@ -57,6 +57,7 @@ def api_test():
     print(type(request.data))
     processing_thread = threading.Thread(target=handleExtractionRequest, args=(reqdata, existing_id))
     processing_thread.start()
+    print(p)
     return jsonify(p)
 
 # A route to return all of the available identities in our catalog.
