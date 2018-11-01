@@ -87,7 +87,7 @@ def save_new_identity(person_identity):
     x = mycol.insert_one(person_identity)
     
     print(x.inserted_id)
-    return x.inserted_id    
+    return str(x.inserted_id)    
 def save_identity(person_identity,raw_image_data, existing_id):
     #mongodb:27017
     username = os.environ.get("USER")
