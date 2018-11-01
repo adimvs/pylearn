@@ -51,14 +51,14 @@ def api_test():
         p = getEmptyPerson()
         p['state'] = 'new'
         p['to_key'] = to_key
-        existing_id = save_new_identity(p)
-        p['id'] = existing_id
+        existing_id = save_new_identity(p)        
     reqdata = request.data[:]
     print(type(request.data))
     processing_thread = threading.Thread(target=handleExtractionRequest, args=(reqdata, existing_id))
     processing_thread.start()
     print(p)
-    return jsonify(p)
+    json_string = JSONEncoder().encode(p)
+    return jsonify(json_string)
 
 # A route to return all of the available identities in our catalog.
 @app.route('/api/v1/resources/identities/<res_id>', methods=['GET'])
