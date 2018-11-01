@@ -54,9 +54,9 @@ def api_test():
         existing_id = save_new_identity(p)        
     reqdata = request.data[:]
     print(type(request.data))
-    processing_thread = threading.Thread(target=handleExtractionRequest, args=(reqdata, existing_id))
+    processing_thread = threading.Thread(target=handleExtractionRequest, args=(reqdata, existing_id, to_key))
     processing_thread.start()
-    print(p)
+    #print(p)
     json_string = JSONEncoder().encode(p)
     return jsonify(json_string)
 
@@ -72,6 +72,8 @@ def get_id_by_id(res_id):
     
     myid = mycol.find_one({'_id': ObjectId(res_id)})
 
+    myid['document_image'] = '(large data)'
+    myid['selfie_image'] = '(large data)'
     json_string = JSONEncoder().encode(myid)
     print(json_string)
     #back_to_dict = loads(json_string)

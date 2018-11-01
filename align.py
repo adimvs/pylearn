@@ -21,7 +21,7 @@ import time
 import json
 from bson import ObjectId
 
-def handleExtractionRequest(requestdata, existing_id):
+def handleExtractionRequest(requestdata, existing_id, to_key):
     try:
         operation_location = sendMSRequest(requestdata)
         time.sleep(6)
@@ -32,12 +32,11 @@ def handleExtractionRequest(requestdata, existing_id):
         sendNotification(person)
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
-        sendFailedExtractionNotification(e.strerror)
+        sendFailedExtractionNotification(e.strerror, to_key)
 
-def sendFailedExtractionNotification(message):
+def sendFailedExtractionNotification(message, to_key):
     api_key = os.environ.get("NOTIF_API_KEY")
     print(api_key)
-    to_key = os.environ.get("TO_KEY")
     print(to_key)
     headers = {
     # Request headers
