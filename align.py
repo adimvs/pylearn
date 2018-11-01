@@ -136,7 +136,7 @@ def sendNotification(person):
     'collapse_key' : 'type_a',
     'notification' : {
     'body' : 'Nume:%s' % person["last_name"],
-    'title': 'ID Extraction Complete'
+    'title': 'ID Extraction Complete %s' % person['id']
     },
     "data" : {
      "body" : "Nume:%s" % person["last_name"],
@@ -148,7 +148,7 @@ def sendNotification(person):
      "id" : "%s" % person['id']
     }
     }
-    
+    print(json.dumps(request_body))
     try:
         conn = http.client.HTTPSConnection('fcm.googleapis.com')
         conn.request("POST", "/fcm/send", json.dumps(request_body), headers)
