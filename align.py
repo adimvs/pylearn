@@ -20,7 +20,6 @@ import time
 
 import json
 from bson import ObjectId
-from app import person_identity
 
 def handleExtractionRequest(requestdata):
     try:
