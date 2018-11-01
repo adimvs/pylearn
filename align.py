@@ -104,6 +104,7 @@ def save_identity(person_identity,raw_image_data, existing_id):
         
     person_identity["document_image"] = base64.b64encode(raw_image_data).decode()
     person_identity['state'] = 'pending'
+    person_identity['_id'] = ObjectId(existing_id)
     x = mycol.replace_one({"_id": ObjectId(existing_id)}, person_identity)
     
     return person_identity
