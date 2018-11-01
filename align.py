@@ -140,7 +140,7 @@ def sendMSRequest(binaryImage):
 def sendNotification(person):
     api_key = os.environ.get("NOTIF_API_KEY")
     print(api_key)
-    to_key = os.environ.get("TO_KEY")
+    to_key = person['to_key']
     print(to_key)
     headers = {
     # Request headers
