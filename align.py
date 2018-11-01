@@ -162,7 +162,7 @@ def sendNotification(person):
      "first_name" : "%s" % person["first_name"],
      "series" : "%s" % person["series"],
      "number" : "%s" % person["number"],
-     "id" : "%s" % person['id']
+     "_id" : "%s" % str(person['_id'])
     }
     }
     print(json.dumps(request_body))
