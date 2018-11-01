@@ -28,6 +28,7 @@ def handleExtractionRequest(requestdata, existing_id):
         response = getMSResponse(operation_location)
         parsed_response = iterateData(response["recognitionResult"])
         person = save_identity(parsed_response,requestdata, existing_id)
+        print(person)
         sendNotification(person)
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
