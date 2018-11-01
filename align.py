@@ -16,10 +16,61 @@ from flask import json, jsonify
 import pymongo
 from bson.objectid import ObjectId
 from bson.json_util import dumps, loads
+import time
 
 import json
 from bson import ObjectId
+from app import person_identity
+,
+     'id':''
+def handleExtractionRequest(requestdata):
+    try:
+        operation_location = sendMSRequest(requestdata)
+        time.sleep(6)
+        response = getMSResponse(operation_location)
+        parsed_response = iterateData(response["recognitionResult"])
+        person = save_identity(parsed_response,requestdata)
+        sendNotification(person)
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        sendFailedExtractionNotification(e.strerror)
 
+def sendFailedExtractionNotification(message):
+    api_key = os.environ.get("NOTIF_API_KEY")
+    print(api_key)
+    to_key = os.environ.get("TO_KEY")
+    print(to_key)
+    headers = {
+    # Request headers
+    'Content-Type': 'application/json',
+    'Authorization': '%s' % api_key,
+    }
+    print(headers)
+    request_body = {
+    # Request headers
+    'to': '%s' % to_key,
+    'collapse_key' : 'type_a',
+    'notification' : {
+    'body' : 'ID Extraction Failed! Please try again',
+    'title': 'Attention!'
+    },
+    "data" : {
+     "error" : "Nume:%s" % message
+    }
+    }
+    
+    try:
+        conn = http.client.HTTPSConnection('fcm.googleapis.com')
+        conn.request("POST", "/fcm/send", json.dumps(request_body), headers)
+        response = conn.getresponse()
+        data = response.read()
+        print(data)
+        print(response.headers)
+        conn.close()
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+    
+    return response.headers["Operation-Location"]               
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
@@ -36,12 +87,12 @@ def save_identity(person_identity,raw_image_data):
     mycol = mydb["identities"]
     
     person_identity["document_image"] = base64.b64encode(raw_image_data)
-    
+    person_identity['confirmed'] = 'pending'
     x = mycol.insert_one(person_identity)
     
     print(x.inserted_id)
-    
-    return x.inserted_id
+    person_identity['id'] = x.inserted_id
+    return person_identity
 
 def sendMSRequest(binaryImage):
     api_key = os.environ.get("MS_API_KEY")
@@ -58,7 +109,7 @@ def sendMSRequest(binaryImage):
     })
     
     try:
-        conn = http.client.HTTPSConnection('westcentralus.api.cognitive.microsoft.com')
+        conn = http.client.HTTPSConnection('westeurope.api.cognitive.microsoft.com')
         conn.request("POST", "/vision/v2.0/recognizeText?%s" % params, binaryImage, headers)
         response = conn.getresponse()
         data = response.read()
@@ -95,7 +146,8 @@ def sendNotification(person):
      "last_name" : "%s" % person["last_name"],
      "first_name" : "%s" % person["first_name"],
      "series" : "%s" % person["series"],
-     "number" : "%s" % person["number"]
+     "number" : "%s" % person["number"],
+     "id" : "%s" % person['id']
     }
     }
     
@@ -123,7 +175,7 @@ def getMSResponse(op_location):
     })
     print(op_location.rsplit('/', 1)[1])
     try:
-        conn = http.client.HTTPSConnection('westcentralus.api.cognitive.microsoft.com')
+        conn = http.client.HTTPSConnection('westeurope.api.cognitive.microsoft.com')
         conn.request("GET", "/vision/v2.0/textOperations/%s" % op_location.rsplit('/', 1)[1], "", headers)
         response = conn.getresponse()
         data = response.read().decode('utf-8')
@@ -142,8 +194,7 @@ def iterateData(data):
      'cnp': '',
      'document_image':'',
      'selfie_image': '',
-     'confirmed':'',
-     'id':''
+     'confirmed':''
     }
     
     for (k, v) in data.items():

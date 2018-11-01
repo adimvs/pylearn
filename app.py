@@ -1,12 +1,13 @@
 from flask import Flask, jsonify, request, json
 from align import stringToRGB, extractIdData, byteToRGB, sendMSRequest,\
-    getMSResponse, iterateData, sendNotification, JSONEncoder
+    getMSResponse, iterateData, sendNotification, JSONEncoder, handleExtractionRequest
 import time
 import pymongo
 import os
 from bson.objectid import ObjectId
 from bson.json_util import dumps, loads
-
+import threading
+import copy
 
 app = Flask(__name__)
 
@@ -41,12 +42,12 @@ def api_all():
 # A route to return all of the available entries in our catalog.
 @app.route('/api/v1/resources/idcards/extract', methods=['GET','POST'])
 def api_test():
-    operation_location = sendMSRequest(request.data)
-    time.sleep(6)
-    response = getMSResponse(operation_location)
-    parsed_response = iterateData(response["recognitionResult"])
-    sendNotification(parsed_response)
-    return jsonify(parsed_response)
+    
+    reqdata = request.data[:]
+    print(type(request.data))
+    processing_thread = threading.Thread(target=handleExtractionRequest, args=(reqdata,))
+    processing_thread.start()
+    return "Processing"
 
 # A route to return all of the available identities in our catalog.
 @app.route('/api/v1/resources/identities/<res_id>', methods=['GET'])
