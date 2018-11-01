@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, json
 from align import stringToRGB, extractIdData, byteToRGB, sendMSRequest,\
-    getMSResponse, iterateData, sendNotification, JSONEncoder, handleExtractionRequest
+    getMSResponse, iterateData, sendNotification, JSONEncoder, handleExtractionRequest, getEmptyPerson,\
+    save_new_identity
 import time
 import pymongo
 import os
@@ -42,12 +43,21 @@ def api_all():
 # A route to return all of the available entries in our catalog.
 @app.route('/api/v1/resources/idcards/extract', methods=['GET','POST'])
 def api_test():
+    existing_id = request.headers["EXISTING_ID"]
+    to_key = request.headers["TO_KEY"]
     
+    if existing_id is None:
+        #we have new identity
+        p = getEmptyPerson()
+        p['state'] = 'new'
+        p['to_key'] = to_key
+        existing_id = save_new_identity(p)
+        p['id'] = existing_id
     reqdata = request.data[:]
     print(type(request.data))
-    processing_thread = threading.Thread(target=handleExtractionRequest, args=(reqdata,))
+    processing_thread = threading.Thread(target=handleExtractionRequest, args=(reqdata, existing_id))
     processing_thread.start()
-    return "Processing"
+    return jsonify(p)
 
 # A route to return all of the available identities in our catalog.
 @app.route('/api/v1/resources/identities/<res_id>', methods=['GET'])

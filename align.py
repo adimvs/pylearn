@@ -20,14 +20,15 @@ import time
 
 import json
 from bson import ObjectId
+from app import person_identity
 
-def handleExtractionRequest(requestdata):
+def handleExtractionRequest(requestdata, existing_id):
     try:
         operation_location = sendMSRequest(requestdata)
         time.sleep(6)
         response = getMSResponse(operation_location)
         parsed_response = iterateData(response["recognitionResult"])
-        person = save_identity(parsed_response,requestdata)
+        person = save_identity(parsed_response,requestdata, existing_id)
         sendNotification(person)
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
@@ -74,8 +75,8 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, ObjectId):
             return str(o)
         return json.JSONEncoder.default(self, o)
-    
-def save_identity(person_identity,raw_image_data):
+
+def save_new_identity(person_identity):
     #mongodb:27017
     username = os.environ.get("USER")
     password = os.environ.get("PASS")
@@ -84,9 +85,26 @@ def save_identity(person_identity,raw_image_data):
 
     mycol = mydb["identities"]
     
-    person_identity["document_image"] = base64.b64encode(raw_image_data).decode()
-    person_identity['confirmed'] = 'pending'
     x = mycol.insert_one(person_identity)
+    
+    print(x.inserted_id)
+    return x.inserted_id    
+def save_identity(person_identity,raw_image_data, existing_id):
+    #mongodb:27017
+    username = os.environ.get("USER")
+    password = os.environ.get("PASS")
+    myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/peopledb" % (username,password))
+    mydb = myclient["peopledb"]
+
+    mycol = mydb["identities"]
+    
+    myid = mycol.find_one({'_id': ObjectId(existing_id)})
+    
+    person_identity["to_key"] = myid['to_key']
+        
+    person_identity["document_image"] = base64.b64encode(raw_image_data).decode()
+    person_identity['state'] = 'pending'
+    x = mycol.replace_one({"_id": ObjectId(existing_id)}, person_identity)
     
     print(x.inserted_id)
     person_identity['id'] = x.inserted_id
@@ -183,7 +201,18 @@ def getMSResponse(op_location):
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
     return json_obj
-
+def getEmptyPerson():
+    person = {'first_name': '',
+     'last_name': '',
+     'series': '',
+     'number': '',
+     'cnp': '',
+     'document_image':'',
+     'selfie_image': '',
+     'state':'',
+     'to_key':''
+    }
+    
 def iterateData(data):
     person = {'first_name': '',
      'last_name': '',
@@ -192,7 +221,7 @@ def iterateData(data):
      'cnp': '',
      'document_image':'',
      'selfie_image': '',
-     'confirmed':''
+     'state':''
     }
     
     for (k, v) in data.items():
