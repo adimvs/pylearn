@@ -211,6 +211,29 @@ def getEmptyPerson():
      'to_key':''
     }
     return person
+
+def getPersonById(p_id):
+    person = {'first_name': '',
+     'last_name': '',
+     'series': '',
+     'number': '',
+     'cnp': '',
+     'document_image':'',
+     'selfie_image': '',
+     'state':'',
+     'to_key':''
+    }
+    
+    username = os.environ.get("USER")
+    password = os.environ.get("PASS")
+    myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/peopledb" % (username,password))
+    mydb = myclient["peopledb"]
+
+    mycol = mydb["identities"]
+    
+    myid = mycol.find_one({'_id': ObjectId(p_id)})
+
+    return person
     
 def iterateData(data):
     person = {'first_name': '',

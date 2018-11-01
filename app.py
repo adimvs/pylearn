@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, json
 from align import stringToRGB, extractIdData, byteToRGB, sendMSRequest,\
     getMSResponse, iterateData, sendNotification, JSONEncoder, handleExtractionRequest, getEmptyPerson,\
-    save_new_identity
+    save_new_identity, getPersonById
 import time
 import pymongo
 import os
@@ -45,13 +45,19 @@ def api_all():
 def api_test():
     existing_id = request.headers.get("EXISTING_ID")
     to_key = request.headers.get("TO_KEY")
-    
+    p = getEmptyPerson()
+    p['state'] = 'new'
+    p['to_key'] = to_key
     if existing_id is None:
         #we have new identity
-        p = getEmptyPerson()
-        p['state'] = 'new'
-        p['to_key'] = to_key
-        existing_id = save_new_identity(p)        
+        
+        existing_id = save_new_identity(p)   
+    else:
+        x = getPersonById(existing_id)
+        if x is None:
+            return json.dumps({'error':'Not found'}), 401, {'ContentType':'application/json'}
+        p['state'] = x['state']
+        
     reqdata = request.data[:]
     print(type(request.data))
     processing_thread = threading.Thread(target=handleExtractionRequest, args=(reqdata, existing_id, to_key))
