@@ -151,7 +151,7 @@ def sendNotification(person):
     'collapse_key' : 'type_a',
     'notification' : {
     'body' : 'Nume:%s' % person["last_name"],
-    'title': 'ID Extraction Complete %s' % person['id']
+    'title': 'ID Extraction Complete %s' % str(person['_id'])
     },
     "data" : {
      "body" : "Nume:%s" % person["last_name"],
