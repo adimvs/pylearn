@@ -43,6 +43,7 @@ def handleConfirmationRequest(requestdata, existing_id, to_key):
             x = mycol.replace_one({"_id": ObjectId(existing_id)}, myid)
             sendConfirmationNotification(to_key)
         else:
+            change_state(existing_id, 'retry_selfie')
             sendNotConfirmedNotification(to_key)
 #        time.sleep(6)
 #         response = getMSResponse(operation_location)
@@ -65,7 +66,7 @@ def handleExtractionRequest(requestdata, existing_id, to_key):
         sendNotification(person)
     except Exception as e:
         # print("[Errno {0}] {1}".format(e.errno, e.strerror))
-        change_state(existing_id, 'retry')
+        change_state(existing_id, 'retry_doc')
         sendFailedExtractionNotification(str(e), to_key)
 
 def change_state(existing_id, newstate):

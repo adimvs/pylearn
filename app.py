@@ -57,6 +57,7 @@ def api_test():
         if x is None:
             return json.dumps({'error':'Not found'}), 401, {'ContentType':'application/json'}
         p['state'] = x['state']
+        p['_id'] = x['_id']
         
     reqdata = request.data[:]
     print(type(request.data))
