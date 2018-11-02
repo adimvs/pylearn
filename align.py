@@ -170,7 +170,7 @@ def sendCompareRequest(binaryImage):
         data = response.read()
         print(data)
         print(response.headers)
-        print(response.json)
+        print(response.json())
         conn.close()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
