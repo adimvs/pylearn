@@ -60,13 +60,28 @@ def handleExtractionRequest(requestdata, existing_id, to_key):
         time.sleep(6)
         response = getMSResponse(operation_location)
         parsed_response = iterateData(response["recognitionResult"])
-        person = save_identity(parsed_response,requestdata, existing_id)
+        person = save_identity(parsed_response,requestdata, existing_id,'pending')
         print(person)
         sendNotification(person)
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        change_state(existing_id, 'retry')
         sendFailedExtractionNotification(e.strerror, to_key)
 
+def change_state(existing_id, newstate):
+    #mongodb:27017
+    username = os.environ.get("USER")
+    password = os.environ.get("PASS")
+    myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/peopledb" % (username,password))
+    mydb = myclient["peopledb"]
+
+    mycol = mydb["identities"]
+    
+  
+    newvalues = { "$set": { "state": "%s" % newstate } }
+    x = mycol.replace_one({"_id": ObjectId(existing_id)}, newvalues)
+    
+    
 def sendFailedExtractionNotification(message, to_key):
     api_key = os.environ.get("NOTIF_API_KEY")
     print(api_key)
@@ -121,7 +136,7 @@ def save_new_identity(person_identity):
     print(person_identity)
     print(x.inserted_id)
     return str(x.inserted_id)    
-def save_identity(person_identity,raw_image_data, existing_id):
+def save_identity(person_identity,raw_image_data, existing_id, newstate):
     #mongodb:27017
     username = os.environ.get("USER")
     password = os.environ.get("PASS")
@@ -135,7 +150,7 @@ def save_identity(person_identity,raw_image_data, existing_id):
     person_identity["to_key"] = myid['to_key']
         
     person_identity["document_image"] = base64.b64encode(raw_image_data).decode()
-    person_identity['state'] = 'pending'
+    person_identity['state'] = newstate
     person_identity['_id'] = ObjectId(existing_id)
     x = mycol.replace_one({"_id": ObjectId(existing_id)}, person_identity)
     
