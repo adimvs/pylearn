@@ -79,7 +79,7 @@ def change_state(existing_id, newstate):
     
   
     newvalues = { "$set": { "state": "%s" % newstate } }
-    x = mycol.replace_one({"_id": ObjectId(existing_id)}, newvalues)
+    x = mycol.update_one({"_id": ObjectId(existing_id)}, newvalues)
     
     
 def sendFailedExtractionNotification(message, to_key):
