@@ -180,6 +180,7 @@ def sendMSRequest(binaryImage):
         conn.close()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        raise
     
     return response.headers["Operation-Location"]
 def sendVerifyRequest(faceId1,faceId2):
@@ -352,6 +353,7 @@ def sendNotification(person):
         conn.close()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        raise
     
     return response.headers["Operation-Location"]
 
@@ -375,6 +377,7 @@ def getMSResponse(op_location):
         conn.close()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        raise
     return json_obj
 def getEmptyPerson():
     person = {'first_name': '',
@@ -462,8 +465,19 @@ def iterateData(data):
                 #name = list(data)[tuple(data.keys()).index(k)+2]['words'][0]['text']
                 print(number_line)
                 person['number'] = number_line
+    
+    if is_empty(person['last_name']) or is_empty(person['first_name']) or is_empty(person['series']) or is_empty(person['cnp']) or is_empty(person['number']):
+        raise Exception('Unable to extract data from document')
     return person
-        
+
+def is_empty(any_structure):
+    if any_structure:
+        print('Structure is not empty.')
+        return False
+    else:
+        print('Structure is empty.')
+        return True     
+
 def extractIdData(image):
     person = {'first_name': 'Bill',
      'last_name': 'Gates',
