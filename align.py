@@ -51,8 +51,8 @@ def handleConfirmationRequest(requestdata, existing_id, to_key):
 #         print(person)
 #         sendNotification(person)
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
-        sendFailedExtractionNotification(e.strerror, to_key)
+        print("[Errno {0}]".format(str(e)))
+        sendFailedExtractionNotification(str(e), to_key)
         
 def handleExtractionRequest(requestdata, existing_id, to_key):
     try:
@@ -66,7 +66,7 @@ def handleExtractionRequest(requestdata, existing_id, to_key):
     except Exception as e:
         # print("[Errno {0}] {1}".format(e.errno, e.strerror))
         change_state(existing_id, 'retry')
-        sendFailedExtractionNotification(e.strerror, to_key)
+        sendFailedExtractionNotification(str(e), to_key)
 
 def change_state(existing_id, newstate):
     #mongodb:27017
@@ -114,7 +114,7 @@ def sendFailedExtractionNotification(message, to_key):
         print(response.headers)
         conn.close()
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        print("[Errno {0}] ".format(str(e)))
     
     return response.headers["Operation-Location"]               
 class JSONEncoder(json.JSONEncoder):
@@ -179,7 +179,7 @@ def sendMSRequest(binaryImage):
         print(response.headers)
         conn.close()
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        print("[Errno {0}] ".format(str(e)))
         raise
     
     return response.headers["Operation-Location"]
@@ -210,7 +210,7 @@ def sendVerifyRequest(faceId1,faceId2):
         isIdentical=json_obj['isIdentical']
         conn.close()
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        print("[Errno {0}]".format(str(e)))
     
     return isIdentical
 def sendDetectRequest(binaryImage):
@@ -238,7 +238,7 @@ def sendDetectRequest(binaryImage):
         faceId=json_obj[0]['faceId']
         conn.close()
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        print("[Errno {0}]".format(str(e)))
     
     return faceId
 
@@ -276,7 +276,7 @@ def sendConfirmationNotification(to_key):
         print(response.headers)
         conn.close()
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        print("[Errno {0}]".format(str(e)))
 
 def sendNotConfirmedNotification(to_key):
     api_key = os.environ.get("NOTIF_API_KEY")
@@ -312,7 +312,7 @@ def sendNotConfirmedNotification(to_key):
         print(response.headers)
         conn.close()
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))     
+        print("[Errno {0}]".format(str(e)))     
 def sendNotification(person):
     api_key = os.environ.get("NOTIF_API_KEY")
     print(api_key)
@@ -352,7 +352,7 @@ def sendNotification(person):
         print(response.headers)
         conn.close()
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        print("[Errno {0}]".format(str(e)))
         raise
     
     return response.headers["Operation-Location"]
@@ -376,7 +376,7 @@ def getMSResponse(op_location):
         print(json_obj)
         conn.close()
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        print("[Errno {0}]".format(str(e)))
         raise
     return json_obj
 def getEmptyPerson():
