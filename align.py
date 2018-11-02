@@ -23,7 +23,18 @@ from bson import ObjectId
 
 def handleConfirmationRequest(requestdata, existing_id, to_key):
     try:
-        operation_location = sendCompareRequest(requestdata)
+        faceId1 = sendDetectRequest(requestdata)
+        username = os.environ.get("USER")
+        password = os.environ.get("PASS")
+        myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/peopledb" % (username,password))
+        mydb = myclient["peopledb"]
+    
+        mycol = mydb["identities"]
+        
+        myid = mycol.find_one({'_id': ObjectId(existing_id)})
+        
+        decoded = base64.decodebytes('document_image')
+        faceId2 = sendDetectRequest(requestdata)
 #        time.sleep(6)
 #         response = getMSResponse(operation_location)
 #         parsed_response = iterateData(response["recognitionResult"])
@@ -148,7 +159,7 @@ def sendMSRequest(binaryImage):
     
     return response.headers["Operation-Location"]
 
-def sendCompareRequest(binaryImage):
+def sendDetectRequest(binaryImage):
     api_key = os.environ.get("FACE_API_KEY")
     print(api_key)
     headers = {
@@ -170,11 +181,12 @@ def sendCompareRequest(binaryImage):
         data = response.read().decode('utf-8')
         json_obj = json.loads(data)
         print(json_obj)
+        faceId=json_obj['faceId']
         conn.close()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
     
-    return response.headers["Operation-Location"]
+    return faceId
 
 def sendNotification(person):
     api_key = os.environ.get("NOTIF_API_KEY")
