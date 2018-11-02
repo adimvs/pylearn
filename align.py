@@ -389,7 +389,8 @@ def getEmptyPerson():
      'document_image':'',
      'selfie_image': '',
      'state':'',
-     'to_key':''
+     'to_key':'',
+    '_id' : ''
     }
     return person
 
