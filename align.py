@@ -33,7 +33,7 @@ def handleConfirmationRequest(requestdata, existing_id, to_key):
         
         myid = mycol.find_one({'_id': ObjectId(existing_id)})
         
-        decoded = base64.decodebytes('document_image')
+        decoded = myid['document_image'].decode('base64')
         faceId2 = sendDetectRequest(requestdata)
 #        time.sleep(6)
 #         response = getMSResponse(operation_location)
