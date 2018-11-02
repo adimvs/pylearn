@@ -181,7 +181,7 @@ def sendDetectRequest(binaryImage):
         data = response.read().decode('utf-8')
         json_obj = json.loads(data)
         print(json_obj)
-        faceId=json_obj['faceId']
+        faceId=json_obj[0]['faceId']
         conn.close()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
