@@ -21,6 +21,19 @@ import time
 import json
 from bson import ObjectId
 
+def handleConfirmationRequest(requestdata, existing_id, to_key):
+    try:
+        operation_location = sendCompareRequest(requestdata)
+#        time.sleep(6)
+#         response = getMSResponse(operation_location)
+#         parsed_response = iterateData(response["recognitionResult"])
+#         person = save_identity(parsed_response,requestdata, existing_id)
+#         print(person)
+#         sendNotification(person)
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        sendFailedExtractionNotification(e.strerror, to_key)
+        
 def handleExtractionRequest(requestdata, existing_id, to_key):
     try:
         operation_location = sendMSRequest(requestdata)
@@ -129,6 +142,35 @@ def sendMSRequest(binaryImage):
         data = response.read()
         print(data)
         print(response.headers)
+        conn.close()
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+    
+    return response.headers["Operation-Location"]
+
+def sendCompareRequest(binaryImage):
+    api_key = os.environ.get("FACE_API_KEY")
+    print(api_key)
+    headers = {
+    # Request headers
+    'Content-Type': 'application/octet-stream',
+    'Ocp-Apim-Subscription-Key': '%s' % api_key,
+    }
+    print(headers)
+    params = urllib.parse.urlencode({
+    # Request parameters
+    'returnFaceId': 'true',
+    'returnFaceLandmarks': 'false'
+    })
+    
+    try:
+        conn = http.client.HTTPSConnection('westeurope.api.cognitive.microsoft.com')
+        conn.request("POST", "/face/v1.0/detect?%s" % params, binaryImage, headers)
+        response = conn.getresponse()
+        data = response.read()
+        print(data)
+        print(response.headers)
+        print(response.json)
         conn.close()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))

@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, json
 from align import stringToRGB, extractIdData, byteToRGB, sendMSRequest,\
     getMSResponse, iterateData, sendNotification, JSONEncoder, handleExtractionRequest, getEmptyPerson,\
-    save_new_identity, getPersonById
+    save_new_identity, getPersonById, handleConfirmationRequest
 import time
 import pymongo
 import os
@@ -103,6 +103,25 @@ def save_id():
     
     response = {'id': '%s' % x.inserted_id}
     return jsonify(response)
+
+# A route to return all of the available entries in our catalog.
+@app.route('/api/v1/resources/idcards/confirm', methods=['GET','POST'])
+def confirm():
+    existing_id = request.headers.get("EXISTING_ID")
+    to_key = request.headers.get("TO_KEY")
+    x = getPersonById(existing_id)
+    if x is None:
+         return json.dumps({'error':'Not found'}), 401, {'ContentType':'application/json'}
+            
+    reqdata = request.data[:]
+    print(type(request.data))
+    processing_thread = threading.Thread(target=handleConfirmationRequest, args=(reqdata, existing_id, to_key))
+    processing_thread.start()
+    #print(p)
+    x['document_image'] = '(large data)'
+    x['selfie_image'] = '(large data)'
+    json_string = JSONEncoder().encode(x)
+    return jsonify(json_string)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',port=8080)
