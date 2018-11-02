@@ -35,6 +35,15 @@ def handleConfirmationRequest(requestdata, existing_id, to_key):
         
         decoded = base64.decodebytes(myid['document_image'].encode('ascii'))
         faceId2 = sendDetectRequest(decoded)
+        
+        isIdentical = sendVerifyRequest(faceId1, faceId2)
+        
+        if isIdentical is True:
+            myid['state'] = 'confirmed'
+            x = mycol.replace_one({"_id": ObjectId(existing_id)}, myid)
+            sendConfirmationNotification(to_key)
+        else:
+            sendNotConfirmedNotification(to_key)
 #        time.sleep(6)
 #         response = getMSResponse(operation_location)
 #         parsed_response = iterateData(response["recognitionResult"])
@@ -158,7 +167,36 @@ def sendMSRequest(binaryImage):
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
     
     return response.headers["Operation-Location"]
-
+def sendVerifyRequest(faceId1,faceId2):
+    api_key = os.environ.get("FACE_API_KEY")
+    print(api_key)
+    headers = {
+    # Request headers
+    'Content-Type': 'application/octet-stream',
+    'Ocp-Apim-Subscription-Key': '%s' % api_key,
+    }
+    print(headers)
+    params = urllib.parse.urlencode({
+    })
+    request_body = {
+    # Request headers
+    'faceId1': '%s' % faceId1,
+    'faceId2' : '%s' % faceId2
+    }
+    
+    try:
+        conn = http.client.HTTPSConnection('westeurope.api.cognitive.microsoft.com')
+        conn.request("POST", "/face/v1.0/verify?%s" % params, json.dumps(request_body), headers)
+        response = conn.getresponse()
+        data = response.read().decode('utf-8')
+        json_obj = json.loads(data)
+        print(json_obj)
+        isIdentical=json_obj['isIdentical']
+        conn.close()
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+    
+    return isIdentical
 def sendDetectRequest(binaryImage):
     api_key = os.environ.get("FACE_API_KEY")
     print(api_key)
@@ -188,6 +226,77 @@ def sendDetectRequest(binaryImage):
     
     return faceId
 
+def sendConfirmationNotification(to_key):
+    api_key = os.environ.get("NOTIF_API_KEY")
+    print(api_key)
+    
+    print(to_key)
+    headers = {
+    # Request headers
+    'Content-Type': 'application/json',
+    'Authorization': '%s' % api_key,
+    }
+    print(headers)
+    request_body = {
+    # Request headers
+    'to': '%s' % to_key,
+    'collapse_key' : 'type_a',
+    'notification' : {
+    'body' : 'Your identity has been confirmed',
+    'title': 'Congratulations'
+    },
+    "data" : {
+     "body" : "Your identity has been confirmed",
+     "title": 'Congratulations'
+    }
+    }
+    print(json.dumps(request_body))
+    try:
+        conn = http.client.HTTPSConnection('fcm.googleapis.com')
+        conn.request("POST", "/fcm/send", json.dumps(request_body), headers)
+        response = conn.getresponse()
+        data = response.read()
+        print(data)
+        print(response.headers)
+        conn.close()
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+
+def sendNotConfirmedNotification(to_key):
+    api_key = os.environ.get("NOTIF_API_KEY")
+    print(api_key)
+    
+    print(to_key)
+    headers = {
+    # Request headers
+    'Content-Type': 'application/json',
+    'Authorization': '%s' % api_key,
+    }
+    print(headers)
+    request_body = {
+    # Request headers
+    'to': '%s' % to_key,
+    'collapse_key' : 'type_a',
+    'notification' : {
+    'body' : 'Your identity has not been confirmed. Please retry with another selfie',
+    'title': 'Attention!'
+    },
+    "data" : {
+     "body" : "YYour identity has not been confirmed. Please retry with another selfie",
+     "title": 'Attention!'
+    }
+    }
+    print(json.dumps(request_body))
+    try:
+        conn = http.client.HTTPSConnection('fcm.googleapis.com')
+        conn.request("POST", "/fcm/send", json.dumps(request_body), headers)
+        response = conn.getresponse()
+        data = response.read()
+        print(data)
+        print(response.headers)
+        conn.close()
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))     
 def sendNotification(person):
     api_key = os.environ.get("NOTIF_API_KEY")
     print(api_key)
