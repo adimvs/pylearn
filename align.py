@@ -167,10 +167,9 @@ def sendCompareRequest(binaryImage):
         conn = http.client.HTTPSConnection('westeurope.api.cognitive.microsoft.com')
         conn.request("POST", "/face/v1.0/detect?%s" % params, binaryImage, headers)
         response = conn.getresponse()
-        data = response.read()
-        print(data)
-        print(response.headers)
-        print(response.json())
+        data = response.read().decode('utf-8')
+        json_obj = json.loads(data)
+        print(json_obj)
         conn.close()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
