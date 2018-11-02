@@ -403,7 +403,8 @@ def getPersonById(p_id):
      'document_image':'',
      'selfie_image': '',
      'state':'',
-     'to_key':''
+     'to_key':'',
+     '_id':''
     }
     
     username = os.environ.get("USER")
