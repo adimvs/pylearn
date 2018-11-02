@@ -172,7 +172,7 @@ def sendVerifyRequest(faceId1,faceId2):
     print(api_key)
     headers = {
     # Request headers
-    'Content-Type': 'application/octet-stream',
+    'Content-Type': 'application/json',
     'Ocp-Apim-Subscription-Key': '%s' % api_key,
     }
     print(headers)
