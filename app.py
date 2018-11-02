@@ -51,13 +51,14 @@ def api_test():
     if existing_id is None:
         #we have new identity
         
-        existing_id = save_new_identity(p)   
+        existing_id = save_new_identity(p)  
+        p['_id'] = existing_id 
     else:
         x = getPersonById(existing_id)
         if x is None:
             return json.dumps({'error':'Not found'}), 401, {'ContentType':'application/json'}
         p['state'] = x['state']
-        p['_id'] = x['_id']
+        p['_id'] = existing_id
         
     reqdata = request.data[:]
     print(type(request.data))
