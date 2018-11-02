@@ -64,7 +64,7 @@ def handleExtractionRequest(requestdata, existing_id, to_key):
         print(person)
         sendNotification(person)
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        # print("[Errno {0}] {1}".format(e.errno, e.strerror))
         change_state(existing_id, 'retry')
         sendFailedExtractionNotification(e.strerror, to_key)
 
