@@ -389,8 +389,7 @@ def getEmptyPerson():
      'document_image':'',
      'selfie_image': '',
      'state':'',
-     'to_key':'',
-    '_id' : ''
+     'to_key':''
     }
     return person
 
@@ -415,8 +414,9 @@ def getPersonById(p_id):
     mycol = mydb["identities"]
     
     myid = mycol.find_one({'_id': ObjectId(p_id)})
-
-    return person
+    x = str(myid['_id'])
+    myid['_id'] = x
+    return myid
     
 def iterateData(data):
     person = {'first_name': '',
