@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, json
-from align import stringToRGB, extractIdData, byteToRGB, sendMSRequest,\
+from align import stringToRGB, byteToRGB, sendMSRequest,\
     getMSResponse, iterateData, sendNotification, JSONEncoder, handleExtractionRequest, getEmptyPerson,\
     save_new_identity, getPersonById, handleConfirmationRequest
 import time
@@ -30,10 +30,31 @@ person_identity = {'first_name': 'Bill',
 def hello_world():
     return "Hello World!"
 
+def isAuthorizedRequest(request):
+    authToken = os.environ.get("AUTH_TOKEN")
+    reqToken = request.headers.get("Authorization")
+    if authToken == reqToken:
+        return True;
+    else:
+        return False
+
+# A route to login
+@app.route('/login', methods=['POST'])
+def login():
+    appUser = os.environ.get("APP_USER")
+    appPass = os.environ.get("APP_PASS")
+    content = request.get_json()
+    print(content)   
+    if content["username"] != appUser or content["password"] != appPass:
+        return json.dumps({'error':'Unauthorized'}), 401, {'ContentType':'application/json'}
+    authToken = os.environ.get("AUTH_TOKEN")
+    tk = { "token" : '%s' % authToken}
+    return jsonify(tk) 
+
 # A route to return all of the available entries in our catalog.
 @app.route('/api/v1/resources/idcards/test', methods=['GET','POST'])
 def api_all():
-    content = request.json
+    content = request.get_json()
     print(content)
     #image = stringToRGB(content["imageBase64"])
     image = byteToRGB(request.data)
@@ -43,10 +64,13 @@ def api_all():
 # A route to return all of the available entries in our catalog.
 @app.route('/api/v1/resources/idcards/extract', methods=['GET','POST'])
 def api_test():
+    if not isAuthorizedRequest(request):
+        return json.dumps({'error':'Forbidden'}), 403, {'ContentType':'application/json'}
+        
     existing_id = request.headers.get("EXISTING_ID")
     to_key = request.headers.get("TO_KEY")
     p = getEmptyPerson()
-    p['state'] = 'new'
+    p['state'] = 'new' 
     p['to_key'] = to_key
     if existing_id is None:
         #we have new identity
@@ -71,6 +95,8 @@ def api_test():
 # A route to return all of the available identities in our catalog.
 @app.route('/api/v1/resources/identities/<res_id>', methods=['GET'])
 def get_id_by_id(res_id):
+    if not isAuthorizedRequest(request):
+        return json.dumps({'error':'Forbidden'}), 403, {'ContentType':'application/json'}
     username = os.environ.get("USER")
     password = os.environ.get("PASS")
     myclient = pymongo.MongoClient("mongodb://%s:%s@mongodb:27017/peopledb" % (username,password))
@@ -109,6 +135,8 @@ def save_id():
 # A route to return all of the available entries in our catalog.
 @app.route('/api/v1/resources/idcards/confirm', methods=['GET','POST'])
 def confirm():
+    if not isAuthorizedRequest(request):
+        return json.dumps({'error':'Forbidden'}), 403, {'ContentType':'application/json'}
     existing_id = request.headers.get("EXISTING_ID")
     to_key = request.headers.get("TO_KEY")
     x = getPersonById(existing_id)
