@@ -10,7 +10,7 @@ from bson.json_util import dumps, loads
 import threading
 import copy
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 
 person = {'first_name': 'Bill',
      'last_name': 'Gates',
@@ -27,8 +27,12 @@ person_identity = {'first_name': 'Bill',
      'selfie_image':''}
 
 @app.route("/")
-def hello_world():
+def hellow():
     return "Hello World!"
+
+@app.route("/license", methods=['GET'])
+def privacyPolicy():
+    return app.send_static_file('privacy_policy.html')
 
 def isAuthorizedRequest(request):
     authToken = os.environ.get("AUTH_TOKEN")
